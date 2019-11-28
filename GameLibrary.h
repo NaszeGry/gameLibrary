@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <fstream>
-#include <random>
 
 //1		2
 //
@@ -93,13 +92,24 @@ namespace Math {
 
 namespace DrawFunctions {
 	static void DrawText(sf::Vector2f pos, std::string napis,
-					sf::Font* font, unsigned int size, sf::RenderWindow* window) {
-		sf::Text text(napis, *font, size);
+					sf::Font* font, unsigned int fontSize, sf::RenderWindow* window) {
+		sf::Text text(napis, *font, fontSize);
 		text.setPosition(pos);
 		text.setFillColor(sf::Color::White);
 		text.setOutlineColor(sf::Color::Black);
 		text.setOutlineThickness(1.f);
 		window->draw(text);
+	}
+
+	static sf::Text getText(std::string napis, sf::Font* font,
+		unsigned int fontSize, sf::Vector2f pos = sf::Vector2f(0.f,0.f)) {
+		sf::Text text(napis, *font, fontSize);
+		text.setPosition(pos);
+		text.setFillColor(sf::Color::White);
+		text.setOutlineColor(sf::Color::Black);
+		text.setOutlineThickness(1.f);
+
+		return text;
 	}
 }
 
@@ -336,24 +346,128 @@ namespace Audio {
 
 namespace UI {
 	static char keyToChar(sf::Keyboard::Key key) {
-		// letters
+		// letters return lower
 		if (int(key) < 26) {
-			return key + 0x41;
+			return key + 0x61;
 		}
-		return key + 48;
+		// numers
+		else if (int(key) < 36) {
+			return key + 0x16;
+		}
+		// numpad
+		else if (int(key) > 74 && int(key) < 85) {
+			return key - 0x1B;
+		}
+		// specific keys , - \ ' / .
+		else if (key == sf::Keyboard::Key::Comma) {
+			return ',';
+		}
+		else if (key == sf::Keyboard::Key::Hyphen) {
+			return '-';
+		}
+		else if (key == sf::Keyboard::Key::Backslash) {
+			return 92;
+		}
+		else if (key == sf::Keyboard::Key::Quote) {
+			return 39;
+		}
+		else if (key == sf::Keyboard::Key::Divide) {
+			return '/';
+		}
+		else if (key == sf::Keyboard::Key::Period) {
+			return '.';
+		}
+		else if (key == sf::Keyboard::Key::Equal) {
+			return '=';
+		}
+
+		return NULL;
+	}
+
+	static char toUpperCase(char a) {
+		// letters
+		if (a >= 97 && a <= 122) {
+			a -= 0x20;
+		}
+		// numbers
+		else if (a >= 48 && a <= 57) {
+			switch (a - 48) {
+				// 1 2 3 4 5  7 8 9 0
+			case 1:
+			case 3:
+			case 4:
+			case 5:
+				a = a - 16;
+				break;
+
+			case 9:
+				a = a - 17;
+				break;
+
+			case 2:
+				a = 64;
+				break;
+
+			case 7:
+				a = 38;
+				break;
+
+			case 8:
+				a = 42;
+				break;
+
+			case 0:
+				a = 41;
+				break;
+
+			case 6:
+				a = 94;
+				break;
+			}
+		}
+		// special keys
+		else if (a == ']' || a == '[') {
+			a += 32;
+		}
+		else if (a == ';') {
+			a = ':';
+		}
+		// \ //
+		else if (a == 92) {
+			a = '|';
+		}
+
+		// '
+		else if (a == 39) {
+			a = '"';
+		}
+		else if (a == ',') {
+			a = '<';
+		}
+		else if (a == '.') {
+			a = '>';
+		}
+		else if (a == '/') {
+			a = '?';
+		}
+		else if (a == '-') {
+			a = '_';
+		}
+		else if (a == '=') {
+			a = '+';
+		}
+		return a;
 	}
 
 	static char getChar() {
-		// letters
-		for (int i = 0; i < 26; i++) {
+		for (int i = 0; i < sf::Keyboard::Key::KeyCount; i++) {
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key(i))) {
-				return i + 0x41;
-			}
-		}
-		// numbers
-		for (int i = 0; i < 10; i++) {
-			if (sf::Keyboard::isKeyPressed( sf::Keyboard::Key(i + 16) )) {
-				return i + 48;
+				char a = keyToChar(sf::Keyboard::Key(i));
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
+					sf::Keyboard::isKeyPressed(sf::Keyboard::RShift)) {
+					a = toUpperCase(a);
+				}
+				return a;
 			}
 		}
 		return NULL;
