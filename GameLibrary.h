@@ -72,16 +72,7 @@ namespace Math {
 	static sf::Color avgColor(sf::Color a, sf::Color b) {
 		return sf::Color( (a.r + b.r)/2, (a.g + b.g) / 2, (a.b + b.b) / 2);
 	}
-	
-	static sf::Color hexToRGB(std::string hex) {
-		sf::Color ret = sf::Color::White;
-		if (!(hex.length() < 6)) {
-			ret.r = std::stoi(hex.substr(0, 2), 0, 16);
-			ret.g = std::stoi(hex.substr(2, 4), 0, 16);
-			ret.b = std::stoi(hex.substr(4, 6), 0, 16);
-		}
-		return ret;
-	}
+
 
 	class Clock {
 	public:
